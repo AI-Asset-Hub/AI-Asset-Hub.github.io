@@ -74,14 +74,25 @@
   nav .wrap { display: flex; align-items: center; justify-content: space-between; }
   nav .logo { display: flex; align-items: center; height: 20px; }
   nav .logo svg { height: 19px; width: auto; }
-  .nav-links { display: flex; align-items: center; gap: 30px; }
+  .nav-links { display: flex; align-items: center; gap: 24px; }
   .nav-links a {
     font-size: 13px; color: var(--dim); font-weight: 400;
     transition: color .2s;
   }
   .nav-links a:hover { color: var(--text); }
   .nav-links a.ghlink { color: var(--text); font-weight: 500; }
-  @media (max-width: 720px) { .nav-links a:not(.ghlink) { display: none; } }
+  /* "Demo" — not yet available; shown but disabled */
+  .nav-links .soon {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 13px; color: var(--faint); cursor: not-allowed;
+    user-select: none;
+  }
+  .nav-links .soon .tag {
+    font-size: 9px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
+    color: var(--faint); border: 1px solid var(--hairline-strong); border-radius: 999px;
+    padding: 2px 6px; line-height: 1;
+  }
+  @media (max-width: 720px) { .nav-links a:not(.ghlink), .nav-links .soon { display: none; } }
 
   /* ---------- HERO ---------- */
   .hero {
@@ -286,6 +297,38 @@
   .foot-links a:hover { color: var(--text); }
   .copy { font-size: 12.5px; color: var(--faint); width: 100%; }
 
+  /* ---------- SEE IT IN ACTION (video) ---------- */
+  .demo { text-align: center; }
+  .browser {
+    position: relative; margin: 56px auto 0; max-width: 920px;
+    border: 1px solid var(--hairline-strong); border-radius: 16px;
+    background: var(--surface); overflow: hidden;
+    box-shadow: 0 40px 90px -40px rgba(0,0,0,.85), 0 0 0 1px rgba(255,255,255,.02) inset;
+  }
+  .browser-bar {
+    display: flex; align-items: center; gap: 8px; padding: 12px 15px;
+    border-bottom: 1px solid var(--hairline); background: rgba(255,255,255,.02);
+  }
+  .browser-bar .dot { width: 11px; height: 11px; border-radius: 50%; background: #2c2c34; flex-shrink: 0; }
+  .browser-bar .addr {
+    flex: 1; margin-left: 10px; height: 26px; border-radius: 8px;
+    background: rgba(255,255,255,.04); border: 1px solid var(--hairline);
+    display: flex; align-items: center; gap: 7px; padding: 0 12px;
+    font-size: 12px; color: var(--faint); max-width: 340px;
+  }
+  .browser-bar .addr svg { width: 12px; height: 12px; flex-shrink: 0; }
+  .browser video { display: block; width: 100%; height: auto; background: #000; }
+  .demo .caption { font-size: 13.5px; color: var(--faint); margin-top: 20px; }
+  .demo .full-link {
+    display: inline-flex; align-items: center; gap: 7px; margin-top: 26px;
+    font-size: 15px; font-weight: 600; color: var(--text);
+    padding: 12px 22px; border-radius: 999px;
+    background: rgba(255,255,255,0.08); border: 1px solid var(--hairline-strong);
+    transition: background .2s;
+  }
+  .demo .full-link:hover { background: rgba(255,255,255,0.14); }
+  .demo .full-link svg { width: 16px; height: 16px; }
+
   /* ---------- SCROLL REVEAL ---------- */
   .reveal { opacity: 0; transform: translateY(28px); transition: opacity .8s cubic-bezier(.2,.7,.2,1), transform .8s cubic-bezier(.2,.7,.2,1); }
   .reveal.in { opacity: 1; transform: none; }
@@ -328,6 +371,8 @@
       <a href="#capabilities">Capabilities</a>
       <a href="#features">Features</a>
       <a href="#roadmap">Roadmap</a>
+      <a href="walkthrough.html">Walkthrough</a>
+      <span class="soon" title="Live demo instance coming soon" aria-disabled="true">Demo <span class="tag">soon</span></span>
       <a class="ghlink" href="https://github.com/AI-Asset-Hub" target="_blank" rel="noopener">GitHub&nbsp;↗</a>
     </div>
   </div>
@@ -378,6 +423,42 @@
       library, and enriches it automatically with LLM-generated metadata. Create, refine,
       organize, and ship — without ever leaving the hub.
     </p>
+  </div>
+</section>
+
+<hr class="divider" />
+
+<!-- ============ SEE IT IN ACTION (video) ============ -->
+<section class="demo" id="see-it">
+  <div class="wrap reveal">
+    <div class="section-tag" style="display:inline-block;">See it in action</div>
+    <h2 style="margin:0 auto;">A 30-second tour.</h2>
+    <p class="lead" style="margin-left:auto;margin-right:auto;">
+      From a single prompt to a fully-tagged, searchable library — library, generation,
+      activity, search and settings, all in one local-first workspace.
+    </p>
+    <div class="browser">
+      <div class="browser-bar">
+        <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+        <span class="addr">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
+          localhost:8080
+        </span>
+      </div>
+      <video
+        src="assets/walkthrough.mp4"
+        poster="assets/walkthrough-poster.jpg"
+        muted autoplay loop playsinline preload="metadata"
+        controls
+        aria-label="Asset Hub feature walkthrough"></video>
+    </div>
+    <p class="caption">Recorded on a local instance · ComfyUI + Ollama, no cloud required.</p>
+    <div>
+      <a class="full-link" href="walkthrough.html">
+        View the full walkthrough
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      </a>
+    </div>
   </div>
 </section>
 
@@ -596,6 +677,13 @@
     reveals.forEach(function (el) { io.observe(el); });
   } else {
     reveals.forEach(function (el) { el.classList.add('in'); });
+  }
+
+  // Respect reduced-motion: don't autoplay the walkthrough video
+  var demoVid = document.querySelector('.browser video');
+  if (demoVid && window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    demoVid.removeAttribute('autoplay'); demoVid.removeAttribute('loop');
+    try { demoVid.pause(); } catch (e) {}
   }
 </script>
 

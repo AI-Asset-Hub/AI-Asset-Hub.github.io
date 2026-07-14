@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Asset Hub — Feature Walkthrough</title>
+<meta name="description" content="A feature-by-feature tour of Asset Hub: library, asset detail, generation, activity, semantic search and settings — a local-first workspace for AI-generated assets." />
+<meta name="theme-color" content="#000000" />
+<meta property="og:title" content="Asset Hub — Feature Walkthrough" />
+<meta property="og:description" content="A feature-by-feature tour of Asset Hub, the local-first workspace for AI-generated assets." />
+<meta property="og:type" content="website" />
+
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='225 260 600 600'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='150' y1='210' x2='780' y2='210' gradientUnits='userSpaceOnUse'%3E%3Cstop offset='0%25' stop-color='%237a2cff'/%3E%3Cstop offset='25%25' stop-color='%238c7bff'/%3E%3Cstop offset='52%25' stop-color='%231ec8e8'/%3E%3Cstop offset='65%25' stop-color='%2346d17a'/%3E%3Cstop offset='78%25' stop-color='%23f0cf4c'/%3E%3Cstop offset='90%25' stop-color='%23ff9540'/%3E%3Cstop offset='100%25' stop-color='%23ff4338'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cg transform='translate(110,100) scale(0.9)'%3E%3Cpolygon fill='url(%23g)' points='150,810 370,210 500,210 280,810'/%3E%3Cpolygon fill='url(%23g)' points='430,210 650,810 780,810 560,210'/%3E%3C/g%3E%3C/svg%3E" />
+
+<style>
+  :root {
+    --bg: #000000;
+    --surface: #0a0a0c;
+    --surface-2: #121216;
+    --text: #f5f5f7;
+    --dim: #a1a1a6;
+    --faint: #6e6e73;
+    --hairline: rgba(255, 255, 255, 0.09);
+    --hairline-strong: rgba(255, 255, 255, 0.16);
+    --c-images: #4a9eff;
+    --c-video: #a56bff;
+    --c-sound: #46d17a;
+    --c-3d: #ff9540;
+    --c-splats: #ff4d8f;
+    --grad: linear-gradient(100deg, #7a2cff 0%, #8c7bff 22%, #49a2ff 40%, #1ec8e8 54%, #46d17a 68%, #f0cf4c 80%, #ff9540 90%, #ff4338 100%);
+    --font: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --maxw: 1040px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; overflow-x: clip; }
+  body {
+    background: var(--bg); color: var(--text); font-family: var(--font);
+    -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility;
+    line-height: 1.5; overflow-x: hidden;
+  }
+  ::selection { background: rgba(122, 44, 255, 0.4); }
+  a { color: inherit; text-decoration: none; }
+  .wrap { width: 100%; max-width: var(--maxw); margin: 0 auto; padding: 0 24px; }
+
+  /* ---------- NAV ---------- */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100; height: 52px;
+    display: flex; align-items: center;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: saturate(180%) blur(20px); -webkit-backdrop-filter: saturate(180%) blur(20px);
+    border-bottom: 1px solid transparent; transition: border-color .3s;
+  }
+  nav.scrolled { border-bottom-color: var(--hairline); }
+  nav .wrap { display: flex; align-items: center; justify-content: space-between; }
+  nav .logo { display: flex; align-items: center; height: 20px; }
+  nav .logo svg { height: 19px; width: auto; }
+  .nav-links { display: flex; align-items: center; gap: 24px; }
+  .nav-links a { font-size: 13px; color: var(--dim); font-weight: 400; transition: color .2s; }
+  .nav-links a:hover { color: var(--text); }
+  .nav-links a.ghlink { color: var(--text); font-weight: 500; }
+
+  /* ---------- HERO ---------- */
+  header.hero { position: relative; padding: 148px 0 40px; overflow: hidden; }
+  .hero-glow {
+    position: absolute; top: -30%; left: 8%; width: 700px; height: 700px; max-width: 120vw;
+    background: radial-gradient(circle, rgba(122,44,255,0.18) 0%, rgba(30,200,232,0.08) 40%, transparent 70%);
+    filter: blur(20px); pointer-events: none;
+  }
+  .eyebrow {
+    position: relative; z-index: 2;
+    font-size: 13px; font-weight: 600; letter-spacing: .16em; text-transform: uppercase;
+    background: var(--grad); -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent; color: transparent; display: inline-block;
+  }
+  h1 {
+    position: relative; z-index: 2;
+    font-size: clamp(34px, 6.4vw, 62px); line-height: 1.05; font-weight: 700;
+    letter-spacing: -0.03em; margin: 22px 0 0; max-width: 15ch;
+  }
+  h1 .grad {
+    background: var(--grad); -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent; color: transparent;
+  }
+  .lede { position: relative; z-index: 2; color: var(--dim); font-size: clamp(16px, 2.1vw, 20px); max-width: 56ch; margin: 24px 0 0; }
+  .meta { position: relative; z-index: 2; display: flex; flex-wrap: wrap; gap: 10px; margin-top: 30px; }
+  .meta span {
+    border: 1px solid var(--hairline-strong); border-radius: 999px; padding: 7px 15px;
+    font-size: 12.5px; color: var(--dim);
+  }
+  .meta span b { color: var(--text); font-weight: 600; }
+
+  /* ---------- STEPS ---------- */
+  main { padding: 30px 0 20px; }
+  .feature { padding: 46px 0 6px; }
+  .feature-head { max-width: 62ch; }
+  .step-eyebrow { display: flex; align-items: center; gap: 14px; margin-bottom: 14px; }
+  .step-eyebrow .num {
+    font-size: 13px; font-weight: 700;
+    background: var(--grad); -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent; color: transparent;
+  }
+  .step-eyebrow .kind {
+    font-size: 12px; letter-spacing: .18em; text-transform: uppercase; color: var(--dim); font-weight: 600;
+  }
+  .step-eyebrow .dur {
+    margin-left: auto; font-size: 11.5px; color: var(--faint);
+    border: 1px solid var(--hairline); border-radius: 999px; padding: 4px 10px;
+  }
+  .feature h2 { font-size: clamp(22px, 3.4vw, 31px); font-weight: 700; letter-spacing: -0.02em; line-height: 1.14; }
+  .feature p { color: var(--dim); font-size: 16px; margin-top: 12px; line-height: 1.55; max-width: 60ch; }
+
+  .browser {
+    margin: 28px 0 0;
+    border: 1px solid var(--hairline-strong); border-radius: 15px;
+    background: var(--surface); overflow: hidden;
+    box-shadow: 0 40px 80px -35px rgba(0,0,0,.8), 0 0 0 1px rgba(255,255,255,.02) inset;
+  }
+  .browser-bar {
+    display: flex; align-items: center; gap: 8px; padding: 12px 15px;
+    border-bottom: 1px solid var(--hairline); background: rgba(255,255,255,.02);
+  }
+  .browser-bar .dot { width: 11px; height: 11px; border-radius: 50%; background: #2c2c34; flex-shrink: 0; }
+  .browser-bar .addr {
+    flex: 1; margin-left: 10px; height: 26px; border-radius: 8px; max-width: 320px;
+    background: rgba(255,255,255,.04); border: 1px solid var(--hairline);
+    display: flex; align-items: center; gap: 7px; padding: 0 12px;
+    font-size: 12px; color: var(--faint);
+  }
+  .browser-bar .addr svg { width: 12px; height: 12px; flex-shrink: 0; }
+  .browser img { display: block; width: 100%; height: auto; }
+
+  .connector { display: grid; place-items: center; height: 58px; }
+  .connector i { width: 1px; height: 100%; background: linear-gradient(180deg, transparent, var(--hairline-strong) 40%, var(--hairline-strong) 60%, transparent); position: relative; }
+  .connector i::after {
+    content: ""; position: absolute; left: 50%; top: 50%; width: 6px; height: 6px; border-radius: 50%;
+    transform: translate(-50%,-50%); background: var(--c-video); box-shadow: 0 0 12px 2px rgba(168,107,255,.5);
+  }
+
+  /* ---------- CLOSING CTA ---------- */
+  .closing { text-align: center; padding: 80px 0 40px; }
+  .closing h2 { font-size: clamp(26px, 4vw, 40px); font-weight: 700; letter-spacing: -0.02em; }
+  .closing p { color: var(--dim); font-size: 17px; margin-top: 16px; }
+  .btn-row { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; margin-top: 30px; }
+  .btn { display: inline-flex; align-items: center; gap: 8px; height: 50px; padding: 0 26px; border-radius: 999px; font-size: 15px; font-weight: 600; transition: transform .18s, opacity .18s, background .2s; }
+  .btn:active { transform: scale(.97); }
+  .btn-primary { background: #fff; color: #000; }
+  .btn-primary:hover { opacity: .88; }
+  .btn-ghost { background: rgba(255,255,255,0.08); color: var(--text); border: 1px solid var(--hairline-strong); }
+  .btn-ghost:hover { background: rgba(255,255,255,0.14); }
+  .btn svg { width: 18px; height: 18px; }
+
+  /* ---------- FOOTER ---------- */
+  footer { border-top: 1px solid var(--hairline); margin-top: 40px; padding: 40px 0 70px; }
+  footer .wrap { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 18px; }
+  footer .logo svg { height: 16px; opacity: .85; }
+  .foot-note { font-size: 12.5px; color: var(--faint); width: 100%; }
+
+  /* ---------- REVEAL ---------- */
+  .reveal { opacity: 0; transform: translateY(22px); transition: opacity .8s cubic-bezier(.2,.7,.2,1), transform .8s cubic-bezier(.2,.7,.2,1); }
+  .reveal.in { opacity: 1; transform: none; }
+  @media (prefers-reduced-motion: reduce) {
+    .reveal { opacity: 1; transform: none; transition: none; }
+    html { scroll-behavior: auto; }
+  }
+  @media (max-width: 560px) {
+    header.hero { padding: 120px 0 20px; }
+    .step-eyebrow .dur { display: none; }
+    .nav-links a.backlink { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="ah-grad" x1="150" y1="210" x2="780" y2="210" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#7a2cff" /><stop offset="10%" stop-color="#b07cff" />
+      <stop offset="25%" stop-color="#8c7bff" /><stop offset="40%" stop-color="#49a2ff" />
+      <stop offset="52%" stop-color="#1ec8e8" /><stop offset="65%" stop-color="#46d17a" />
+      <stop offset="78%" stop-color="#f0cf4c" /><stop offset="90%" stop-color="#ff9540" />
+      <stop offset="100%" stop-color="#ff4338" />
+    </linearGradient>
+  </defs>
+</svg>
+
+<!-- ============ NAV ============ -->
+<nav id="nav">
+  <div class="wrap">
+    <a class="logo" href="index.html" aria-label="Asset Hub home">
+      <svg viewBox="320 360 3230 545" fill="none" aria-label="ASSET HUB">
+        <g transform="translate(200,200) scale(0.85)">
+          <polygon fill="url(#ah-grad)" points="150,810 370,210 500,210 280,810" />
+          <polygon fill="url(#ah-grad)" points="430,210 650,810 780,810 560,210" />
+        </g>
+        <text x="880" y="820" font-family="Arial, Helvetica, sans-serif" font-size="500" font-weight="700" letter-spacing="16" fill="#f5f5f7">SSET HUB</text>
+      </svg>
+    </a>
+    <div class="nav-links">
+      <a class="backlink" href="index.html">← Home</a>
+      <a class="ghlink" href="https://github.com/AI-Asset-Hub" target="_blank" rel="noopener">GitHub&nbsp;↗</a>
+    </div>
+  </div>
+</nav>
+
+<!-- ============ HERO ============ -->
+<header class="hero">
+  <div class="hero-glow"></div>
+  <div class="wrap">
+    <div class="eyebrow reveal">Feature walkthrough</div>
+    <h1 class="reveal">A local-first workspace for <span class="grad">AI-generated assets</span></h1>
+    <p class="lede reveal">Generate, organize and refine images, 3D models, sound and splats — from a single prompt to a fully-tagged, searchable library. Here's the tour, feature by feature.</p>
+    <div class="meta reveal">
+      <span><b>Local-first</b> · ComfyUI + Ollama</span>
+      <span><b>Multi-modal</b> · image · video · sound · 3D · splats</span>
+      <span><b>Cloud optional</b> · Meshy · Tripo · OpenAI</span>
+    </div>
+  </div>
+</header>
+
+<!-- ============ STEPS ============ -->
+<main class="wrap">
+
+  <section class="feature reveal">
+    <div class="feature-head">
+      <div class="step-eyebrow"><span class="num">01</span><span class="kind">Library</span><span class="dur">≈ 5s</span></div>
+      <h2>Your whole asset workspace at a glance</h2>
+      <p>Every generated image, 3D model, prop and texture in one categorized grid — filter, sort, and open any asset.</p>
+    </div>
+    <figure class="browser">
+      <div class="browser-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="addr">localhost:8080/library</span></div>
+      <img loading="lazy" src="assets/step-1.jpg" alt="The Library view — every asset in one categorized grid" />
+    </figure>
+  </section>
+
+  <div class="connector reveal"><i></i></div>
+
+  <section class="feature reveal">
+    <div class="feature-head">
+      <div class="step-eyebrow"><span class="num">02</span><span class="kind">Detail</span><span class="dur">≈ 5s</span></div>
+      <h2>Every asset, fully documented</h2>
+      <p>Prompt, tags, measurements and model metadata — then continue straight into Retexture, Remesh or Image → 3D.</p>
+    </div>
+    <figure class="browser">
+      <div class="browser-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="addr">localhost:8080/asset</span></div>
+      <img loading="lazy" src="assets/step-2.jpg" alt="The asset detail view with prompt, tags and metadata" />
+    </figure>
+  </section>
+
+  <div class="connector reveal"><i></i></div>
+
+  <section class="feature reveal">
+    <div class="feature-head">
+      <div class="step-eyebrow"><span class="num">03</span><span class="kind">Generate</span><span class="dur">≈ 7s</span></div>
+      <h2>One prompt, any medium</h2>
+      <p>Image, video, sound, 3D or Gaussian splats — run it locally through ComfyUI or hand it to a cloud provider, then hit Start.</p>
+    </div>
+    <figure class="browser">
+      <div class="browser-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="addr">localhost:8080/generate</span></div>
+      <img loading="lazy" src="assets/step-3.jpg" alt="The Generate view — one prompt, any medium" />
+    </figure>
+  </section>
+
+  <div class="connector reveal"><i></i></div>
+
+  <section class="feature reveal">
+    <div class="feature-head">
+      <div class="step-eyebrow"><span class="num">04</span><span class="kind">Activity</span><span class="dur">≈ 5s</span></div>
+      <h2>Keep an overview of what's happening</h2>
+      <p>Every job in one place — queued, generating and completed — so you always know what your pipeline is doing at a glance.</p>
+    </div>
+    <figure class="browser">
+      <div class="browser-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="addr">localhost:8080/activity</span></div>
+      <img loading="lazy" src="assets/step-4.jpg" alt="The Activity view — queued, generating and completed jobs" />
+    </figure>
+  </section>
+
+  <div class="connector reveal"><i></i></div>
+
+  <section class="feature reveal">
+    <div class="feature-head">
+      <div class="step-eyebrow"><span class="num">05</span><span class="kind">Search</span><span class="dur">≈ 5s</span></div>
+      <h2>Find anything, semantically</h2>
+      <p>Type what you mean, not the exact filename — matching tags and results surface instantly across the library.</p>
+    </div>
+    <figure class="browser">
+      <div class="browser-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="addr">localhost:8080/search</span></div>
+      <img loading="lazy" src="assets/step-5.jpg" alt="The Search view — semantic search across the library" />
+    </figure>
+  </section>
+
+  <div class="connector reveal"><i></i></div>
+
+  <section class="feature reveal">
+    <div class="feature-head">
+      <div class="step-eyebrow"><span class="num">06</span><span class="kind">Settings</span><span class="dur">≈ 5s</span></div>
+      <h2>Route each task to the model you want</h2>
+      <p>Pick the provider per task — local ComfyUI, Ollama or cloud — and manage workflows, config and users.</p>
+    </div>
+    <figure class="browser">
+      <div class="browser-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="addr">localhost:8080/settings</span></div>
+      <img loading="lazy" src="assets/step-6.jpg" alt="The Settings view — route each task to a provider" />
+    </figure>
+  </section>
+
+</main>
+
+<!-- ============ CLOSING ============ -->
+<section class="closing">
+  <div class="wrap reveal">
+    <h2>That's the tour.</h2>
+    <p>Open source and self-hostable — clone it, run <code style="font-family:ui-monospace,monospace;background:var(--surface-2);padding:2px 7px;border-radius:6px;font-size:.9em;">docker compose up</code>, and start creating.</p>
+    <div class="btn-row">
+      <a class="btn btn-primary" href="https://github.com/AI-Asset-Hub" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.7.5.5 5.7.5 12c0 5.1 3.3 9.4 7.9 10.9.6.1.8-.2.8-.5v-2c-3.2.7-3.9-1.4-3.9-1.4-.5-1.3-1.3-1.7-1.3-1.7-1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 1.8 2.7 1.3 3.4 1 .1-.8.4-1.3.7-1.6-2.6-.3-5.3-1.3-5.3-5.8 0-1.3.5-2.3 1.2-3.1-.1-.3-.5-1.5.1-3.1 0 0 1-.3 3.3 1.2a11.5 11.5 0 0 1 6 0c2.3-1.5 3.3-1.2 3.3-1.2.6 1.6.2 2.8.1 3.1.8.8 1.2 1.8 1.2 3.1 0 4.5-2.7 5.5-5.3 5.8.4.4.8 1.1.8 2.2v3.3c0 .3.2.6.8.5 4.6-1.5 7.9-5.8 7.9-10.9C23.5 5.7 18.3.5 12 .5z"/></svg>
+        View on GitHub
+      </a>
+      <a class="btn btn-ghost" href="index.html">← Back to home</a>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FOOTER ============ -->
+<footer>
+  <div class="wrap">
+    <a class="logo" href="index.html" aria-label="Asset Hub">
+      <svg viewBox="320 360 3230 545" fill="none" aria-label="ASSET HUB">
+        <g transform="translate(200,200) scale(0.85)">
+          <polygon fill="url(#ah-grad)" points="150,810 370,210 500,210 280,810" />
+          <polygon fill="url(#ah-grad)" points="430,210 650,810 780,810 560,210" />
+        </g>
+        <text x="880" y="820" font-family="Arial, Helvetica, sans-serif" font-size="500" font-weight="700" letter-spacing="16" fill="#f5f5f7">SSET HUB</text>
+      </svg>
+    </a>
+    <div class="foot-note">Feature walkthrough · 6 views · ≈ 29s runtime &nbsp;·&nbsp; Local-first · Open source.</div>
+  </div>
+</footer>
+
+<script>
+  var nav = document.getElementById('nav');
+  var onScroll = function () { nav.classList.toggle('scrolled', window.scrollY > 8); };
+  onScroll();
+  window.addEventListener('scroll', onScroll, { passive: true });
+
+  var reveals = document.querySelectorAll('.reveal');
+  if ('IntersectionObserver' in window) {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
+    }, { threshold: 0.12, rootMargin: '0px 0px -8% 0px' });
+    reveals.forEach(function (el) { io.observe(el); });
+  } else {
+    reveals.forEach(function (el) { el.classList.add('in'); });
+  }
+</script>
+
+</body>
+</html>
