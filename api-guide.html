@@ -122,6 +122,7 @@
       <a href="#generate">Generation</a>
       <a href="#jobs">Jobs</a>
       <a href="#sets">Sets &amp; collections</a>
+      <a href="#shares">Share links</a>
       <a href="#errors">Errors</a>
     </div>
   </div>
@@ -233,6 +234,22 @@ Authorization: Bearer &lt;access_token&gt;</pre>
 
 <span class="m">GET</span>  /collections                <span class="a">→</span> {"items": [tiles]}
 <span class="m">PUT</span>  /collections                {"collections":[tiles]}   <span class="c"># full replace, order = list</span></pre>
+  </section>
+
+  <section class="doc reveal" id="shares">
+    <h2>Share links</h2>
+    <p>Share a single asset — or, as an admin, a whole collection — with people who don't have an account. Creating a share returns a public URL that is served by an isolated, credential-less share proxy on its own hostname, so anonymous visitors never touch the main app or this API.</p>
+<pre><span class="m">POST</span>   /items/{id}/shares         {"expires_in_days"?, "password"?, "allow_download"?}
+       <span class="a">→</span> 201 {url: "https://share.&lt;your-host&gt;/s/&lt;token&gt;", expires_at, …}
+<span class="m">POST</span>   /collections/{id}/shares   <span class="c"># admin only — collections span users</span>
+<span class="m">GET</span>    /shares                     <span class="a">→</span> {"shares": [...]}   <span class="c"># yours (admins: everyone's)</span>
+<span class="m">DELETE</span> /shares/{share_id}          <span class="a">→</span> 204   <span class="c"># revoke — the link dies immediately</span></pre>
+    <ul>
+      <li>Defaults: expires in <b>30 days</b> (set <code>null</code> for never), <b><code>allow_download</code></b> on; an optional password is stored only as a bcrypt hash.</li>
+      <li>The public link (<code>/s/&lt;token&gt;</code>) is <b>not</b> part of <code>/api/v1</code> — it's served by the rate-limited share proxy, which forwards only share traffic to the backend.</li>
+      <li>Revoked, expired and unknown tokens all answer the same <code>404</code> — a dead link reveals nothing.</li>
+    </ul>
+    <div class="callout"><b>Security:</b> how the share proxy isolates public traffic is covered on the <a href="security.html">security page</a>.</div>
   </section>
 
   <section class="doc reveal" id="errors">

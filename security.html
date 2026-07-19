@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Asset Hub — Security</title>
-<meta name="description" content="How Asset Hub protects your data: per-user isolation, encrypted secrets, SSRF protection, revocable sessions, signed asset URLs, hardened containers and an automated security test suite." />
+<meta name="description" content="How Asset Hub protects your data: per-user isolation, proxy-isolated sharing, encrypted secrets, SSRF protection, revocable sessions, signed asset URLs, hardened containers and an automated security test suite." />
 <meta name="theme-color" content="#000000" />
 <meta property="og:title" content="Asset Hub — Security" />
 <meta property="og:description" content="How we secure Asset Hub — a hardened, self-hostable platform for AI-generated assets." />
@@ -108,6 +108,7 @@
     <p class="lede reveal">Asset Hub is self-hosted: your prompts, assets and provider keys live on your own infrastructure, never ours. That only matters if the software itself is trustworthy — so it's hardened by default, reviewed end to end, and every protection is pinned by an automated test suite.</p>
     <div class="pill-row reveal">
       <span class="pill">Encrypted at rest</span>
+      <span class="pill">Proxy-isolated sharing</span>
       <span class="pill">SSRF-guarded</span>
       <span class="pill">Non-root containers</span>
       <span class="pill">100+ security tests</span>
@@ -125,6 +126,19 @@
       <div class="m"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7l6-4 6 4 6-4v14l-6 4-6-4-6 4z"/><path d="M9 3v14M15 7v14"/></svg></div><div><h3>Filesystem confinement</h3><p>Serving assets is confined to the storage root; path-traversal attempts can't escape it to reach other files on disk.</p></div></div>
       <div class="m"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1 1"/><path d="M14 11a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1-1"/></svg></div><div><h3>Signed, expiring URLs</h3><p>Files and avatars are delivered through short-lived, HMAC-signed links backed by a dedicated signing key — never guessable public paths.</p></div></div>
       <div class="m"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 4v5c0 4.5-3.2 7.7-8 9-4.8-1.3-8-4.5-8-9V7z"/><path d="M9 12l2 2 4-4"/></svg></div><div><h3>Admin-gated operations</h3><p>Library scans, provider configuration and user management require admin — and admin status is re-read from the database on every request.</p></div></div>
+      <div class="m"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/><path d="M9 15l2 2 4-4"/></svg></div><div><h3>File integrity monitoring</h3><p>Every stored file's checksum is recorded and re-verified by a daily background sweep — silent corruption or tampering is flagged for an operator instead of going unnoticed.</p></div></div>
+      <div class="m"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="7" cy="8" r="3"/><circle cx="17" cy="8" r="3"/><path d="M2.5 20a4.5 4.5 0 0 1 9 0M12.5 20a4.5 4.5 0 0 1 9 0"/><path d="M12 4v16" stroke-dasharray="2.5 2.5"/></svg></div><div><h3>Isolation, audited</h3><p>Every API route was audited for cross-tenant access, and dozens of automated isolation scenarios pin the result — one account can't see another's assets, jobs, keys or even tag names.</p></div></div>
+    </div>
+  </section>
+
+  <section class="group reveal">
+    <h2>Sharing &amp; public surface</h2>
+    <p class="gsub">Share an asset with anyone — without ever exposing the app itself.</p>
+    <div class="measures">
+      <div class="m"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="2.6"/><circle cx="6" cy="12" r="2.6"/><circle cx="18" cy="19" r="2.6"/><path d="M8.3 13.3l7.4 4.4M15.7 6.3l-7.4 4.4"/></svg></div><div><h3>Isolated share proxy</h3><p>Public share links are served by a dedicated, credential-less proxy — no database access, no app secrets. It forwards only share traffic, strips any client credentials, and answers 404 to everything else; anonymous visitors never touch the main app.</p></div></div>
+      <div class="m"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2.5"/><path d="M9 2h6"/></svg></div><div><h3>Expiring, revocable links</h3><p>Every share is an unguessable random token with optional expiry, revocable at any moment. Revoked, expired and unknown links all return the same 404 — a dead link reveals nothing about what exists.</p></div></div>
+      <div class="m"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7a4 4 0 1 0-4 4M11 11l-7 7v3h3l1-1h2v-2h2l2-2"/></svg></div><div><h3>Password-protected shares</h3><p>Shares can require a password, stored only as a bcrypt hash. Unlocking exchanges it for a short-lived proof — the password never appears in a URL — and guessing is strictly rate-limited at the proxy.</p></div></div>
+      <div class="m"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a15 15 0 0 1 0 18M12 3a15 15 0 0 0 0 18"/><path d="M4.5 4.5l15 15"/></svg></div><div><h3>Self-contained viewer</h3><p>The public share page makes zero third-party requests — every viewer library ships with the proxy, pinned by a strict Content-Security-Policy, and share pages are excluded from search indexing.</p></div></div>
     </div>
   </section>
 
